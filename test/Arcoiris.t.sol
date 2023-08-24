@@ -4,8 +4,7 @@ import {Test} from "forge-std/Test.sol";
 import {Arcoiris} from "contracts/Arcoiris.sol";
 import {Even} from "contracts/redistributions/Even.sol";
 
-contract ArcoirisTestHarness is Arcoiris {
-}
+contract ArcoirisTestHarness is Arcoiris {}
 
 contract CalibratorTest is Test {
     ArcoirisTestHarness arcoiris;

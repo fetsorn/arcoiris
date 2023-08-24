@@ -4,12 +4,8 @@ pragma solidity >=0.8.7 <0.9.0;
 import {Arcoiris} from "../Arcoiris.sol";
 
 contract Voting {
-
-    modifier onlyPoller {
-        require(
-                msg.sender == poller,
-                "Only poller can call this function."
-        );
+    modifier onlyPoller() {
+        require(msg.sender == poller, "Only poller can call this function.");
         _;
     }
 
@@ -36,13 +32,15 @@ contract Voting {
     function vote(Vote[] memory _votes) external {
         require(isEligible[msg.sender]);
 
-        for (uint i=0; i < _votes.length; i++) {
+        for (uint i = 0; i < _votes.length; i++) {
             votes[msg.sender].push(_votes[i]);
         }
     }
 
-    function commenceVoting(address[] memory eligibleVoters) external onlyPoller {
-        for (uint i=0; i < eligibleVoters.length; i++) {
+    function commenceVoting(
+        address[] memory eligibleVoters
+    ) external onlyPoller {
+        for (uint i = 0; i < eligibleVoters.length; i++) {
             isEligible[eligibleVoters[i]] = true;
         }
     }

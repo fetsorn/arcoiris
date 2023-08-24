@@ -4,6 +4,14 @@ pragma solidity >=0.8.7 <0.9.0;
 import {Redistribution} from "./interfaces/Redistribution.sol";
 
 contract Base {
+    modifier onlyMC(uint256 gatheringID) {
+        require(
+                msg.sender == gatherings[gatheringID].mc,
+                "Only MC can call this function."
+        );
+        _;
+    }
+
     struct Gathering {
         address focalizer;
         bool isMutable;

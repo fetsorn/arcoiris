@@ -4,7 +4,6 @@ pragma solidity >=0.8.7 <0.9.0;
 import {Redistribution} from "../interfaces/Redistribution.sol";
 
 contract Even is Redistribution {
-
     struct Mission {
         address facilitator;
         uint256 priority;

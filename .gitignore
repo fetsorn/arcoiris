@@ -1,0 +1,16 @@
+*.DS_Store
+node_modules
+.idea/
+.nuxt/
+.DS_Store
+.env
+coverage
+coverage.json
+typechain-types
+
+#Hardhat files
+cache
+artifacts
+/lcov.info
+/yarn-error.log
+/coverage-foundry/

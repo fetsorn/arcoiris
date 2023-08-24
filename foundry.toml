@@ -1,0 +1,15 @@
+[profile.default]
+src = "contracts"
+out = "artifacts"
+libs = [
+    "node_modules",
+]
+remappings = [
+    "@ethereum-waffle/=node_modules/@ethereum-waffle/",
+    "@gton/=node_modules/@gton/",
+    "@openzeppelin/=node_modules/@openzeppelin/",
+    "ds-test/=node_modules/ds-test/src/",
+    "forge-std/=node_modules/forge-std/src/",
+    "hardhat/=node_modules/hardhat/",
+]
+fs_permissions = [{ access = "read", path = "./node_modules"}]

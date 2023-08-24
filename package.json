@@ -1,0 +1,50 @@
+{
+  "name": "arcoiris",
+  "description": "Redistribute wealth",
+  "license": "AGPL-3.0",
+  "devDependencies": {
+    "@nomiclabs/hardhat-ethers": "2.2.3",
+    "@nomiclabs/hardhat-etherscan": "3.1.7",
+    "@nomiclabs/hardhat-waffle": "2.0.5",
+    "@typechain/ethers-v5": "^10.2.1",
+    "@typechain/hardhat": "^6.1.6",
+    "@types/chai": "^4.2.18",
+    "@types/chai-as-promised": "^7.1.4",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "^20.1.3",
+    "@xyrusworx/hardhat-solidity-json": "^1.0.2",
+    "bignumber.js": "^9.1.1",
+    "chai": "^4.3.4",
+    "chai-as-promised": "^7.1.1",
+    "dotenv": "^16.0.3",
+    "ds-test": "dapphub/ds-test",
+    "ethereum-waffle": "^4.0.10",
+    "ethers": "^5.7.2",
+    "forge-std": "foundry-rs/forge-std",
+    "hardhat": "2.14.0",
+    "hardhat-abi-exporter": "^2.2.1",
+    "mocha-chai-jest-snapshot": "^1.1.2",
+    "prettier": "^2.8.8",
+    "prettier-plugin-solidity": "^1.1.3",
+    "solhint": "^3.4.1",
+    "solidity-coverage": "^0.8.2",
+    "ts-node": "^10.9.1",
+    "typechain": "^8.1.1",
+    "typescript": "^5.0.4"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.8.3"
+  },
+  "scripts": {
+    "compile": "hardhat compile",
+    "coverage": "forge coverage --report lcov && lcov --rc lcov_branch_coverage=1 --remove lcov.info --output-file lcov.info '*libraries*' && genhtml lcov.info --branch-coverage --output-dir coverage-foundry",
+    "test": "hardhat test && forge test",
+    "fmt": "prettier --write contracts/**/* test/**/*",
+    "lint": "solhint contrats/**/*",
+    "docs": "forge doc",
+    "test:local:env": "hardhat run --network localhost ./scripts/local.spec.ts"
+  },
+  "prettier": {
+    "semi": false
+  }
+}

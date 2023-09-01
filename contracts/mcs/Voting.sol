@@ -2,6 +2,7 @@
 pragma solidity >=0.8.7 <0.9.0;
 
 import {Arcoiris} from "../Arcoiris.sol";
+import {Mission} from "../interfaces/Redistribution.sol";
 
 contract Voting {
     modifier onlyPoller() {
@@ -18,6 +19,8 @@ contract Voting {
     Arcoiris public arcoiris;
     uint256 public gatheringID;
     uint256 public ceremonyID;
+    address[] siblings;
+    uint256[] priorities;
 
     constructor(Arcoiris _arcoiris, uint256 _gatheringID, uint256 _ceremonyID) {
         arcoiris = _arcoiris;
@@ -46,11 +49,11 @@ contract Voting {
     }
 
     function completeVoting() external onlyPoller {
-        // TODO from missions from votes
+        // TODO form sibling priorities from votes
 
-        // TODO form missions bytes
-        bytes memory missions = new bytes(32);
+        siblings.push(address(0));
+        priorities.push(0);
 
-        arcoiris.redistribute(gatheringID, ceremonyID, missions);
+        arcoiris.redistribute(gatheringID, ceremonyID, siblings, priorities);
     }
 }

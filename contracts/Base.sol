@@ -30,5 +30,27 @@ contract Base {
 
     uint256 gatheringCounter;
 
-    mapping(uint256 => Gathering) public gatherings;
+    mapping(uint256 => Gathering) gatherings;
+
+    function getContributors(
+        uint256 gatheringID,
+        uint256 ceremonyID
+    ) external returns(address[] memory) {
+        Gathering storage gathering = gatherings[gatheringID];
+
+        Ceremony storage ceremony = gathering.ceremonies[ceremonyID];
+
+        return ceremony.contributors;
+    }
+
+    function getIsCollectionComplete(
+        uint256 gatheringID,
+        uint256 ceremonyID
+    ) external returns(bool) {
+        Gathering storage gathering = gatherings[gatheringID];
+
+        Ceremony storage ceremony = gathering.ceremonies[ceremonyID];
+
+        return ceremony.isCollectionComplete;
+    }
 }

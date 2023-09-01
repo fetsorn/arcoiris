@@ -3,7 +3,7 @@ pragma solidity >=0.8.7 <0.9.0;
 
 import {Base} from "./Base.sol";
 import {Settings} from "./Settings.sol";
-import {Redistribution} from "./interfaces/Redistribution.sol";
+import {Redistribution, Mission} from "./interfaces/Redistribution.sol";
 
 contract Arcoiris is Base, Settings {
     function createGathering(
@@ -47,6 +47,9 @@ contract Arcoiris is Base, Settings {
     ) external {
         // TODO transfer tokenID from msg.sender
 
+        // TODO count contribution in collection
+
+        // add contributor to siblings
         gatherings[gatheringID].ceremonies[ceremonyID].contributors.push(msg.sender);
     }
 
@@ -60,9 +63,10 @@ contract Arcoiris is Base, Settings {
     function redistribute(
         uint256 gatheringID,
         uint256 ceremonyID,
-        bytes calldata missions
+        address[] memory siblings,
+        uint256[] memory priorities
     ) external onlyMC(gatheringID) {
         // TODO: fallback to even algorithm
-        gatherings[gatheringID].redistribution.redistribute(missions);
+        gatherings[gatheringID].redistribution.redistribute(siblings, priorities, 0);
     }
 }

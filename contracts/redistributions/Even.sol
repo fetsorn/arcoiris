@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: AGPL-3.0
 pragma solidity >=0.8.7 <0.9.0;
 
-import {Redistribution} from "../interfaces/Redistribution.sol";
+import {Redistribution, Mission} from "../interfaces/Redistribution.sol";
 
 contract Even is Redistribution {
-    struct Mission {
-        address facilitator;
-        uint256 priority;
-    }
-
-    function redistribute(bytes calldata _missions) external {
-        Mission[] memory missions = abi.decode(_missions, (Mission[]));
+    function redistribute(
+        address[] calldata addresses,
+        uint256[] calldata priorities,
+        uint256 amount
+    ) external returns (Mission[] memory missions) {
+        // do something
+        return missions;
     }
 }

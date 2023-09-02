@@ -188,4 +188,34 @@ contract CalibratorTest is Test {
 
         validate(6,5,4);
     }
+
+    function test_proporitonal_reverse_111_alice_takes_all() public {
+        create(address(new Proportional()));
+
+        contribute(addressAlice, 1);
+
+        contribute(addressBob, 1);
+
+        contribute(addressTony, 1);
+
+        // least priority is winner
+        // TODO: should 0 be winner or loser?
+        redistribute(0,1,1);
+
+        validate(4,7,6);
+    }
+
+    function test_proportional_reverse_111_alice_and_bob() public {
+        create(address(new Proportional()));
+
+        contribute(addressAlice, 1);
+
+        contribute(addressBob, 1);
+
+        contribute(addressTony, 1);
+
+        redistribute(1,1,0);
+
+        validate(6,5,4);
+    }
 }

@@ -1,20 +1,26 @@
 // SPDX-License-Identifier: AGPL-3.0
 pragma solidity >=0.8.7 <0.9.0;
 
-import {Base} from "./Base.sol";
+import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import {Settings} from "./Settings.sol";
-import {Redistribution, Mission} from "./interfaces/Redistribution.sol";
+import {IRedistribution, Mission} from "./interfaces/IRedistribution.sol";
 
-contract Arcoiris is Base, Settings {
+contract Arcoiris is Settings {
+    modifier onlyMC(uint256 gatheringID) {
+        require(
+                msg.sender == gatherings[gatheringID].mc,
+                "Only MC can call this function."
+        );
+        _;
+    }
+
     function createGathering(
         address collection,
-        Redistribution redistribution,
+        IRedistribution redistribution,
         address mc,
         bool isMutable
     ) external returns (uint256 gatheringID) {
         gatheringID = gatheringCounter;
-
-        gatheringCounter++;
 
         Gathering storage gatheringNew = gatherings[gatheringID];
 
@@ -25,6 +31,8 @@ contract Arcoiris is Base, Settings {
         gatheringNew.mc = mc;
 
         gatheringNew.isMutable = isMutable;
+
+        gatheringCounter++;
     }
 
     function createCeremony(
@@ -42,14 +50,17 @@ contract Arcoiris is Base, Settings {
     function contribute(
         uint256 gatheringID,
         uint256 ceremonyID,
-        address token,
+        address tokenAddress,
         uint256 tokenID
     ) external {
-        // TODO transfer tokenID from msg.sender
+        IERC721 token = IERC721(tokenAddress);
 
-        // TODO count contribution in collection
+        token.safeTransferFrom(msg.sender, address(this), tokenID);
 
-        // add contributor to siblings
+        require(this.getCollection(gatheringID) == tokenAddress);
+
+        gatherings[gatheringID].ceremonies[ceremonyID].contributions.push(tokenID);
+
         gatherings[gatheringID].ceremonies[ceremonyID].contributors.push(msg.sender);
     }
 
@@ -57,7 +68,7 @@ contract Arcoiris is Base, Settings {
         uint256 gatheringID,
         uint256 ceremonyID
     ) external onlyMC(gatheringID) {
-        gatherings[gatheringID].ceremonies[ceremonyID].isCollectionComplete = true;
+        gatherings[gatheringID].ceremonies[ceremonyID].isCollectionEnded = true;
     }
 
     function redistribute(
@@ -66,7 +77,28 @@ contract Arcoiris is Base, Settings {
         address[] memory siblings,
         uint256[] memory priorities
     ) external onlyMC(gatheringID) {
-        // TODO: fallback to even algorithm
-        gatherings[gatheringID].redistribution.redistribute(siblings, priorities, 0);
+        Mission[] memory missions = gatherings[gatheringID].redistribution.redistribute(
+            siblings,
+            priorities,
+            this.getContributions(gatheringID, ceremonyID).length
+        );
+
+        IERC721 token = IERC721(gatherings[gatheringID].collection);
+
+        for (uint256 i = 0; i < missions.length; i++) {
+            Mission memory mission = missions[i];
+
+            for (uint256 j = 0; j < mission.share; j ++) {
+                uint256[] memory contributions = this.getContributions(gatheringID, ceremonyID);
+
+                token.safeTransferFrom(
+                    address(this),
+                    mission.facilitator,
+                    contributions[contributions.length-1]
+                );
+
+                gatherings[gatheringID].ceremonies[ceremonyID].contributions.pop();
+            }
+        }
     }
 }

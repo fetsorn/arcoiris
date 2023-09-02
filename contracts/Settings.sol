@@ -4,7 +4,6 @@ pragma solidity >=0.8.7 <0.9.0;
 import {Base} from "./Base.sol";
 
 contract Settings is Base {
-
     modifier onlyFocalizer(uint256 gatheringID) {
         require(
                 msg.sender == gatherings[gatheringID].focalizer,

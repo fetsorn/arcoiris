@@ -1,29 +1,60 @@
 pragma solidity 0.8.19;
 
-import {Test} from "forge-std/Test.sol";
+import {Test, Vm} from "forge-std/Test.sol";
+import "forge-std/console.sol";
+import {ERC721PresetMinterPauserAutoId} from "@openzeppelin/contracts/token/ERC721/presets/ERC721PresetMinterPauserAutoId.sol";
 import {Arcoiris} from "contracts/Arcoiris.sol";
-import {Even} from "contracts/redistributions/Even.sol";
+import {Proportional} from "contracts/redistributions/Proportional.sol";
+import {IRedistribution} from "contracts/interfaces/IRedistribution.sol";
 
 contract ArcoirisTestHarness is Arcoiris {}
 
 contract CalibratorTest is Test {
     ArcoirisTestHarness arcoiris;
+    ERC721PresetMinterPauserAutoId token;
+    address addressAlice = address(1);
+    address addressBob = address(2);
+    address addressMC = address(3);
+    uint256 tokenAlice;
+    uint256 tokenBob;
 
     function setUp() public {
         arcoiris = new ArcoirisTestHarness();
-        // TODO: token deploy
-        // TODO: alice topup
-        // TODO: bob topup
-        // TODO: tony topup
+
+        token = new ERC721PresetMinterPauserAutoId(
+            "Base",
+            "BASE",
+            "https://example.com"
+        );
+
+        // mint token to Alice
+
+        vm.recordLogs();
+
+        token.mint(addressAlice);
+
+        Vm.Log[] memory entries = vm.getRecordedLogs();
+
+        tokenAlice = uint256(entries[0].topics[3]);
+
+        // mint token to Bob
+
+        vm.recordLogs();
+
+        token.mint(addressBob);
+
+        entries = vm.getRecordedLogs();
+
+        tokenBob = uint256(entries[0].topics[3]);
     }
 
     function createGathering() public returns (uint256) {
-        Even even = Even(address(0));
+        IRedistribution redistribution = new Proportional();
 
         uint256 gatheringID = arcoiris.createGathering(
-            address(0),
-            even,
-            address(msg.sender),
+            address(token),
+            redistribution,
+            addressMC,
             false
         );
 
@@ -33,9 +64,9 @@ contract CalibratorTest is Test {
     function createCeremony() public returns (uint256, uint256) {
         uint256 gatheringID = createGathering();
 
-        uint256 ceremonyID = arcoiris.createCeremony(
-            gatheringID
-        );
+        vm.prank(addressMC);
+
+        uint256 ceremonyID = arcoiris.createCeremony(gatheringID);
 
         return (gatheringID, ceremonyID);
     }
@@ -47,70 +78,139 @@ contract CalibratorTest is Test {
     }
 
     function test_createCeremony() public {
+        uint256 gatheringID;
+        uint256 ceremonyID;
+
         (gatheringID, ceremonyID) = createCeremony();
 
         assertEq(ceremonyID, 0);
     }
 
-    function test_contribute() public {
-        (gatheringID, ceremonyID) = createCeremony();
+    function includes(
+        address[] memory array,
+        address element
+    ) public pure returns (bool) {
+        for (uint i = 0; i < array.length; i++) {
+            if (array[i] == element) {
+                return true;
+            }
+        }
 
-        // TODO: alice contribute
-        arcoiris.contribute(gatheringID, ceremonyID, token, tokenAlice);
-
-        uint256 contributors = arcoiris.getContributors(gatheringID, ceremonyID);
-
-        // TODO: assert contributors include alice
+        return false;
     }
 
     function test_contribute() public {
+        uint256 gatheringID;
+        uint256 ceremonyID;
+
         (gatheringID, ceremonyID) = createCeremony();
 
-        uint256 balanceAlice = token.balanceOf(aliceAddress);
+        // alice contributes
 
-        assertEq(balanceAlice, 1);
+        vm.prank(addressAlice);
 
-        // TODO: alice contribute
-        arcoiris.contribute(gatheringID, ceremonyID, token, tokenAlice);
+        token.approve(address(arcoiris), tokenAlice);
 
-        balanceAlice = token.balanceOf(aliceAddress);
+        vm.prank(addressAlice);
 
-        assertEq(balanceAlice, 0);
+        arcoiris.contribute(
+            gatheringID,
+            ceremonyID,
+            address(token),
+            tokenAlice
+        );
 
-        uint256 contributors = arcoiris.getContributors(gatheringID, ceremonyID);
+        // alice becomes a contributor
 
-        // TODO: assert contributors include alice
+        address[] memory contributors = arcoiris.getContributors(
+            gatheringID,
+            ceremonyID
+        );
+
+        assertEq(includes(contributors, addressAlice), true);
     }
 
     function test_endCollection() public {
+        uint256 gatheringID;
+        uint256 ceremonyID;
+
         (gatheringID, ceremonyID) = createCeremony();
 
-        // TODO: mc ends collection
+        vm.prank(addressMC);
+
         arcoiris.endCollection(gatheringID, ceremonyID);
 
-        assertEq(arcoiris.getIsCollectionComplete(gatheringID, ceremonyID), true);
+        assertEq(arcoiris.getIsCollectionEnded(gatheringID, ceremonyID), true);
     }
 
     function test_redistribute() public {
+        uint256 gatheringID;
+        uint256 ceremonyID;
+
         (gatheringID, ceremonyID) = createCeremony();
 
-        uint256 balanceAlice = token.balanceOf(aliceAddress);
+        // alice contributes
+
+        uint256 balanceAlice = token.balanceOf(addressAlice);
 
         assertEq(balanceAlice, 1);
 
-        // TODO: alice contributes
-        arcoiris.contribute(gatheringID, ceremonyID, token, tokenAlice);
-        //
-        // TODO: bob contributes
-        arcoiris.contribute(gatheringID, ceremonyID, token, tokenBob);
+        vm.prank(addressAlice);
 
-        // TODO: mc ends collection
+        token.approve(address(arcoiris), tokenAlice);
+
+        vm.prank(addressAlice);
+
+        arcoiris.contribute(
+            gatheringID,
+            ceremonyID,
+            address(token),
+            tokenAlice
+        );
+
+        balanceAlice = token.balanceOf(addressAlice);
+
+        assertEq(balanceAlice, 0);
+
+        // bob contributes
+
+        uint256 balanceBob = token.balanceOf(addressBob);
+
+        assertEq(balanceBob, 1);
+
+        vm.prank(addressBob);
+
+        token.approve(address(arcoiris), tokenBob);
+
+        vm.prank(addressBob);
+
+        arcoiris.contribute(gatheringID, ceremonyID, address(token), tokenBob);
+
+        balanceBob = token.balanceOf(addressBob);
+
+        assertEq(balanceBob, 0);
+
+        // mc ends collection
+
+        vm.prank(addressMC);
+
         arcoiris.endCollection(gatheringID, ceremonyID);
 
-        // TODO: mc redistributes collection
-        arcoiris.redistribute(gatheringID, ceremonyID, [aliceAddress], [1]);
+        // mc redistributes
 
-        balanceAlice = token.balanceOf(aliceAddress);
+        address[] memory siblings = new address[](1);
+        siblings[0] = addressAlice;
+
+        uint256[] memory priorities = new uint256[](1);
+        priorities[0] = 1;
+
+        vm.prank(addressMC);
+
+        arcoiris.redistribute(gatheringID, ceremonyID, siblings, priorities);
+
+        // alice receives all shares
+
+        balanceAlice = token.balanceOf(addressAlice);
 
         assertEq(balanceAlice, 2);
     }

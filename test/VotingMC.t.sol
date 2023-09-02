@@ -6,14 +6,14 @@ import {ERC721PresetMinterPauserAutoId} from "@openzeppelin/contracts/token/ERC7
 import {Arcoiris} from "contracts/Arcoiris.sol";
 import {Proportional} from "contracts/redistributions/Proportional.sol";
 import {IRedistribution, Mission} from "contracts/interfaces/IRedistribution.sol";
-import {Poll} from "contracts/mcs/Poll.sol";
+import {VotingMC} from "contracts/mcs/VotingMC.sol";
 
 contract ArcoirisTestHarness is Arcoiris {}
 
 contract CalibratorTest is Test {
     ArcoirisTestHarness arcoiris;
     ERC721PresetMinterPauserAutoId token;
-    Poll poll;
+    VotingMC poll;
     address addressAlice = address(1);
     address addressBob = address(2);
     uint256 tokenAlice;
@@ -25,7 +25,7 @@ contract CalibratorTest is Test {
     function setUp() public {
         arcoiris = new ArcoirisTestHarness();
 
-        poll = new Poll(address(arcoiris));
+        poll = new VotingMC(address(arcoiris));
 
         token = new ERC721PresetMinterPauserAutoId(
             "Base",

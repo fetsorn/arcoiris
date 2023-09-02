@@ -4,7 +4,7 @@ pragma solidity >=0.8.7 <0.9.0;
 import {Arcoiris} from "../Arcoiris.sol";
 import {Mission} from "../interfaces/IRedistribution.sol";
 
-contract Poll {
+contract VotingMC {
     modifier onlyPoller(uint256 pollID) {
         require(
             msg.sender == polls[pollID].poller,
@@ -97,10 +97,8 @@ contract Poll {
         );
 
         for (uint256 i = 0; i < votes.length; i++) {
-            Mission memory vote = votes[i];
-
             require(
-                polls[pollID].isEligibleVoter[vote.facilitator],
+                polls[pollID].isEligibleVoter[votes[i].facilitator],
                 "Poll: facilitator is not eligible"
             );
 
@@ -117,9 +115,7 @@ contract Poll {
             ];
 
             for (uint256 j = 0; j < votes.length; j++) {
-                Mission memory vote = votes[j];
-
-                polls[pollID].points[vote.facilitator] += vote.share;
+                polls[pollID].points[votes[j].facilitator] += votes[j].share;
             }
         }
 

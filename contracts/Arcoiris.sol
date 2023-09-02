@@ -6,6 +6,20 @@ import {Settings} from "./Settings.sol";
 import {IRedistribution, Mission} from "./interfaces/IRedistribution.sol";
 
 contract Arcoiris is Settings {
+    event CreateGathering(
+        uint256 indexed gatheringID,
+        address indexed focalizer,
+        address indexed mc,
+        address collection,
+        address redistribution,
+        bool isMutable
+    );
+
+    event CreateCeremony(
+        uint256 indexed gatheringID,
+        uint256 indexed ceremonyID
+    );
+
     modifier onlyMC(uint256 gatheringID) {
         require(
                 msg.sender == gatherings[gatheringID].mc,
@@ -32,7 +46,18 @@ contract Arcoiris is Settings {
 
         gatheringNew.isMutable = isMutable;
 
+        gatheringNew.focalizer = msg.sender;
+
         gatheringCounter++;
+
+        emit CreateGathering(
+            gatheringID,
+            msg.sender,
+            mc,
+            collection,
+            address(redistribution),
+            isMutable
+        );
     }
 
     function createCeremony(
@@ -45,6 +70,8 @@ contract Arcoiris is Settings {
         ceremonyID = gathering.ceremonyCounter;
 
         gathering.ceremonyCounter++;
+
+        emit CreateCeremony(gatheringID, ceremonyID);
     }
 
     function contribute(

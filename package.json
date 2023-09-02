@@ -2,6 +2,7 @@
   "name": "arcoiris",
   "description": "Redistribute wealth",
   "license": "AGPL-3.0",
+  "version": "1.0.0",
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "2.2.3",
     "@nomiclabs/hardhat-etherscan": "3.1.7",

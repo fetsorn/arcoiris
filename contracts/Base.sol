@@ -25,7 +25,7 @@ contract Base is IERC721Receiver {
 
     mapping(uint256 => Gathering) internal gatherings;
 
-    function getGatheringCounter(uint256 gatheringCounter) external view returns (uint256) {
+    function getGatheringCounter() external view returns (uint256) {
         return gatheringCounter;
     }
 

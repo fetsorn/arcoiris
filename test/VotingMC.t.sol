@@ -37,7 +37,7 @@ contract CalibratorTest is Test {
 
         gatheringID = arcoiris.createGathering(
             address(token),
-            redistribution,
+            address(redistribution),
             address(poll),
             false
         );

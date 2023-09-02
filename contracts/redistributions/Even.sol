@@ -13,8 +13,18 @@ contract Even is IRedistribution {
 
         missions = new Mission[](siblings.length);
 
+        uint256 sum;
+
         for (uint256 i = 0; i < siblings.length; i++) {
-            missions[i] = Mission(siblings[i], amount / priorities.length);
+            uint256 share = amount / priorities.length;
+
+            missions[i] = Mission(siblings[i], share);
+
+            sum += share;
+        }
+
+        if (sum < amount) {
+            missions[0] = Mission(siblings[0], amount - sum);
         }
 
         return missions;

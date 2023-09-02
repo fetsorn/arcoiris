@@ -53,7 +53,7 @@ contract CalibratorTest is Test {
 
         uint256 gatheringID = arcoiris.createGathering(
             address(token),
-            redistribution,
+            address(redistribution),
             addressMC,
             false
         );

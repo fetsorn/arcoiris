@@ -2,6 +2,7 @@
 pragma solidity >=0.8.7 <0.9.0;
 
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import {IERC721Enumerable} from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol";
 import {Settings} from "./Settings.sol";
 import {IRedistribution, Mission} from "./interfaces/IRedistribution.sol";
 
@@ -30,7 +31,7 @@ contract Arcoiris is Settings {
 
     function createGathering(
         address collection,
-        IRedistribution redistribution,
+        address redistribution,
         address mc,
         bool isMutable
     ) external returns (uint256 gatheringID) {
@@ -40,7 +41,7 @@ contract Arcoiris is Settings {
 
         gatheringNew.collection = collection;
 
-        gatheringNew.redistribution = redistribution;
+        gatheringNew.redistribution = IRedistribution(redistribution);
 
         gatheringNew.mc = mc;
 
@@ -55,7 +56,7 @@ contract Arcoiris is Settings {
             msg.sender,
             mc,
             collection,
-            address(redistribution),
+            redistribution,
             isMutable
         );
     }
@@ -80,13 +81,36 @@ contract Arcoiris is Settings {
         address tokenAddress,
         uint256 tokenID
     ) external {
+        require(this.getCollection(gatheringID) == tokenAddress, "Arcoiris: not a valid token");
+
         IERC721 token = IERC721(tokenAddress);
 
         token.safeTransferFrom(msg.sender, address(this), tokenID);
 
-        require(this.getCollection(gatheringID) == tokenAddress);
-
         gatherings[gatheringID].ceremonies[ceremonyID].contributions.push(tokenID);
+
+        gatherings[gatheringID].ceremonies[ceremonyID].contributors.push(msg.sender);
+    }
+
+    function contributeBatch(
+        uint256 gatheringID,
+        uint256 ceremonyID,
+        address tokenAddress,
+        uint256 amount
+    ) external {
+        require(this.getCollection(gatheringID) == tokenAddress, "Arcoiris: not a valid token");
+
+        IERC721Enumerable token = IERC721Enumerable(tokenAddress);
+
+        require(token.balanceOf(msg.sender) >= amount, "Arcoiris: not enough tokens");
+
+        // for (uint256 i = 0; i < amount; i++) {
+            uint256 tokenID = token.tokenOfOwnerByIndex(msg.sender, 0);
+
+            token.safeTransferFrom(msg.sender, address(this), tokenID);
+
+            gatherings[gatheringID].ceremonies[ceremonyID].contributions.push(tokenID);
+        // }
 
         gatherings[gatheringID].ceremonies[ceremonyID].contributors.push(msg.sender);
     }

@@ -1,0 +1,15 @@
+# Summary
+- [Home](README.md)
+# contracts
+  - [❱ interfaces](contracts/interfaces/README.md)
+    - [Mission](contracts/interfaces/IRedistribution.sol/struct.Mission.md)
+    - [IRedistribution](contracts/interfaces/IRedistribution.sol/interface.IRedistribution.md)
+  - [❱ mcs](contracts/mcs/README.md)
+    - [VotingMC](contracts/mcs/VotingMC.sol/contract.VotingMC.md)
+  - [❱ redistributions](contracts/redistributions/README.md)
+    - [Even](contracts/redistributions/Even.sol/contract.Even.md)
+    - [Proportional](contracts/redistributions/Proportional.sol/contract.Proportional.md)
+    - [ProportionalReverse](contracts/redistributions/ProportionalReverse.sol/contract.ProportionalReverse.md)
+  - [Arcoiris](contracts/Arcoiris.sol/contract.Arcoiris.md)
+  - [Base](contracts/Base.sol/contract.Base.md)
+  - [Settings](contracts/Settings.sol/contract.Settings.md)

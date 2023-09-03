@@ -12,7 +12,7 @@ contract Settings is Base {
     /// @param focalizerNew The new organizer of the gathering
     event SetFocalizer(
         uint256 indexed gatheringID,
-        address indexed focalizerOld
+        address indexed focalizerOld,
         address indexed focalizerNew
     );
     
@@ -22,7 +22,7 @@ contract Settings is Base {
     /// @param mcNew The new master of ceremonies
     event SetMC(
         uint256 indexed gatheringID,
-        address indexed mcOld
+        address indexed mcOld,
         address indexed mcNew
     );
     
@@ -34,7 +34,7 @@ contract Settings is Base {
     /// @param collectionNew The new token valid for the gathering
     event SetCollection(
         uint256 indexed gatheringID,
-        address indexed collectionOld
+        address indexed collectionOld,
         address indexed collectionNew
     );
     
@@ -73,7 +73,7 @@ contract Settings is Base {
             focalizerNew
         );
         
-        gatherings[gatheringID].focalizer = focalizer;
+        gatherings[gatheringID].focalizer = focalizerNew;
     }
 
     /// @notice Set address that can organize ceremonies
@@ -93,7 +93,7 @@ contract Settings is Base {
             mcNew
         );
         
-        gatherings[gatheringID].mc = mc;
+        gatherings[gatheringID].mc = mcNew;
     }
 
     /// @notice Set token valid for the gathering
@@ -113,6 +113,6 @@ contract Settings is Base {
             collectionNew
         );
         
-        gatherings[gatheringID].collection = collection;
+        gatherings[gatheringID].collection = collectionNew;
     }
 }

@@ -80,7 +80,7 @@ contract VotingMC {
 
     /// @notice Get ID of the ceremony associated with a poll
     /// @param pollID The index of a poll
-    /// @return gatheringID The index of a ceremony
+    /// @return ceremonyID The index of a ceremony
     function getCeremonyID(
         uint256 pollID
     ) external view returns (uint256 ceremonyID) {

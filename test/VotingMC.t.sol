@@ -106,18 +106,14 @@ contract CalibratorTest is Test {
         balanceBob = token.balanceOf(addressBob);
 
         assertEq(balanceBob, 0);
-
-        // mc ends collection
-
-        poll.endCollection(pollID);
     }
 
-    function test_commencePoll() public {
+    function test_beginVoting() public {
         address[] memory voters = new address[](2);
         voters[0] = addressAlice;
         voters[1] = addressBob;
 
-        poll.commencePoll(pollID);
+        poll.beginVoting(pollID);
 
         assertEq(pollID, 0);
     }
@@ -127,7 +123,7 @@ contract CalibratorTest is Test {
         voters[0] = addressAlice;
         voters[1] = addressBob;
 
-        poll.commencePoll(pollID);
+        poll.beginVoting(pollID);
 
         Mission[] memory votes = new Mission[](2);
         votes[0] = Mission(address(addressAlice), 1);
@@ -143,7 +139,7 @@ contract CalibratorTest is Test {
         voters[0] = addressAlice;
         voters[1] = addressBob;
 
-        poll.commencePoll(pollID);
+        poll.beginVoting(pollID);
 
         Mission[] memory votes = new Mission[](2);
         votes[0] = Mission(address(addressAlice), 1);

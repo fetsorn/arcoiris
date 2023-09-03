@@ -161,7 +161,7 @@ contract CalibratorTest is Test {
         validate(5,5,5);
     }
 
-    function test_proporitonal_111_alice_takes_all() public {
+    function test_proportional_111_alice_takes_all() public {
         create(address(new Proportional()));
 
         contribute(addressAlice, 1);
@@ -189,7 +189,7 @@ contract CalibratorTest is Test {
         validate(6,5,4);
     }
 
-    function test_proporitonal_reverse_111_alice_takes_all() public {
+    function test_proportional_reverse_111_alice_takes_all() public {
         create(address(new Proportional()));
 
         contribute(addressAlice, 1);

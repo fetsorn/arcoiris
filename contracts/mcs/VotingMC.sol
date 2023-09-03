@@ -4,7 +4,10 @@ pragma solidity >=0.8.7 <0.9.0;
 import {Arcoiris} from "../Arcoiris.sol";
 import {Mission} from "../interfaces/IRedistribution.sol";
 
+/// @title Hosts redistribution ceremonies according to voting
+/// @author Anton Davydov
 contract VotingMC {
+    /// @notice Only allows functions if msg.sender is the organizer of the poll
     modifier onlyPoller(uint256 pollID) {
         require(
             msg.sender == polls[pollID].poller,
@@ -13,6 +16,7 @@ contract VotingMC {
         _;
     }
 
+    /// @notice Information about a poll
     struct Poll {
         uint256 gatheringID;
         uint256 ceremonyID;
@@ -23,28 +27,40 @@ contract VotingMC {
         mapping(address => uint256) points;
     }
 
+    /// @notice The Arcoíris contract
     Arcoiris arcoiris;
 
+    /// @notice The number of created polls
     uint256 public pollCounter;
 
+    /// @notice Indexed map of poll structs
     mapping(uint256 => Poll) internal polls;
 
     constructor(address _arcoiris) {
         arcoiris = Arcoiris(_arcoiris);
     }
 
+    /// @notice Get ID of the gathering associated with a poll
+    /// @param pollID The index of a poll
+    /// @return gatheringID The index of a gathering
     function getGatheringID(
         uint256 pollID
     ) external view returns (uint256 gatheringID) {
         return polls[pollID].gatheringID;
     }
 
+    /// @notice Get ID of the ceremony associated with a poll
+    /// @param pollID The index of a poll
+    /// @return gatheringID The index of a ceremony
     function getCeremonyID(
         uint256 pollID
     ) external view returns (uint256 ceremonyID) {
         return polls[pollID].ceremonyID;
     }
 
+    /// @notice Create a poll and a redistribution ceremony
+    /// @param gatheringID The index of the gathering
+    /// @return pollID The index of the new poll
     function createPoll(uint256 gatheringID) external returns (uint256 pollID) {
         require(
             arcoiris.getMC(gatheringID) == address(this),
@@ -62,22 +78,15 @@ contract VotingMC {
         polls[pollID].ceremonyID = ceremonyID;
 
         pollCounter++;
+        // TODO: emit event
     }
 
-    function endCollection(uint256 pollID) external onlyPoller(pollID) {
+    /// @notice End collection and start accepting votes
+    /// @param pollID The index of the poll
+    function commencePoll(uint256 pollID) external onlyPoller(pollID) {
         arcoiris.endCollection(
             polls[pollID].gatheringID,
             polls[pollID].ceremonyID
-        );
-    }
-
-    function commencePoll(uint256 pollID) external onlyPoller(pollID) {
-        require(
-            arcoiris.getIsCollectionEnded(
-                polls[pollID].gatheringID,
-                polls[pollID].ceremonyID
-            ),
-            "Poll: collection has not ended"
         );
 
         address[] memory contributors = arcoiris.getContributors(
@@ -88,8 +97,11 @@ contract VotingMC {
         for (uint256 i = 0; i < contributors.length; i++) {
             polls[pollID].isEligibleVoter[contributors[i]] = true;
         }
+        // TODO: emit event
     }
 
+    /// @notice Place a vote for priority of each ceremony member
+    /// @param pollID The index of the poll
     function vote(uint256 pollID, Mission[] memory votes) external {
         require(
             polls[pollID].isEligibleVoter[msg.sender],
@@ -106,8 +118,11 @@ contract VotingMC {
         }
 
         polls[pollID].voters.push(msg.sender);
+        // TODO: emit event
     }
 
+    /// @notice Redistribute wealth according to voting results
+    /// @param pollID The index of the poll
     function completePoll(uint256 pollID) external onlyPoller(pollID) {
         for (uint256 i = 0; i < polls[pollID].voters.length; i++) {
             Mission[] memory votes = polls[pollID].votes[
@@ -131,6 +146,8 @@ contract VotingMC {
                 polls[pollID].points[siblings[i]] /
                 polls[pollID].voters.length;
         }
+        
+        // TODO: emit event
 
         arcoiris.redistribute(
             polls[pollID].gatheringID,

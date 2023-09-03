@@ -6,7 +6,15 @@ import {IERC721Enumerable} from "@openzeppelin/contracts/token/ERC721/extensions
 import {Settings} from "./Settings.sol";
 import {IRedistribution, Mission} from "./interfaces/IRedistribution.sol";
 
+/// @title Hosts ceremonies for redistribution of wealth
+/// @author Anton Davydov
 contract Arcoiris is Settings {
+    /// @notice Emits when a redistribution community is created
+    /// @param gatheringID The index of new gathering
+    /// @param focalizer The creator of the gathering
+    /// @param mc The master of ceremonies
+    /// @param collection The token valid for redistribution
+    /// @param isMutable True if focalizer can change gathering settings
     event CreateGathering(
         uint256 indexed gatheringID,
         address indexed focalizer,
@@ -15,12 +23,16 @@ contract Arcoiris is Settings {
         address redistribution,
         bool isMutable
     );
-
+    
+    /// @notice Emits when a redistribution ceremony is created
+    /// @param gatheringID The index of gathering
+    /// @param ceremonyID The index of new ceremony
     event CreateCeremony(
         uint256 indexed gatheringID,
         uint256 indexed ceremonyID
     );
 
+    /// @notice Only allows functions if msg.sender is the master of ceremonies for the gathering
     modifier onlyMC(uint256 gatheringID) {
         require(
                 msg.sender == gatherings[gatheringID].mc,
@@ -28,7 +40,13 @@ contract Arcoiris is Settings {
         );
         _;
     }
-
+    
+    /// @notice Create a community with common redistribution settings
+    /// @param collection The token valid for redistribution
+    /// @param redistribution The contract that implements IRedistribution interface
+    /// @param mc The master of ceremonies
+    /// @param isMutable True if focalizer can change gathering settings
+    /// @return gatheringID The index of new gathering
     function createGathering(
         address collection,
         address redistribution,
@@ -61,6 +79,9 @@ contract Arcoiris is Settings {
         );
     }
 
+    /// @notice Create a redistribution ceremony
+    /// @param gatheringID The index of gathering
+    /// @return ceremonyID The index of new ceremony
     function createCeremony(
         uint256 gatheringID
     ) external onlyMC(gatheringID) returns (
@@ -75,6 +96,11 @@ contract Arcoiris is Settings {
         emit CreateCeremony(gatheringID, ceremonyID);
     }
 
+    /// @notice Transfer token to join the ceremony
+    /// @param gatheringID The index of gathering
+    /// @param ceremonyID The index of new ceremony
+    /// @param tokenAddress The ERC721 token contract address
+    /// @param tokenID The ERC721 token ID
     function contribute(
         uint256 gatheringID,
         uint256 ceremonyID,
@@ -91,13 +117,21 @@ contract Arcoiris is Settings {
 
         gatherings[gatheringID].ceremonies[ceremonyID].contributors.push(msg.sender);
     }
+    
+    // TODO overload contribute for ERC721
 
+    /// @notice Transfer several tokens to join the ceremony
+    /// @param gatheringID The index of gathering
+    /// @param ceremonyID The index of new ceremony
+    /// @param tokenAddress The IERC721Enumerable token contract address
+    /// @param amount The number of tokens to transfer
     function contributeBatch(
         uint256 gatheringID,
         uint256 ceremonyID,
         address tokenAddress,
         uint256 amount
     ) external {
+        // TODO: check if ERC20, transfer batch
         require(this.getCollection(gatheringID) == tokenAddress, "Arcoiris: not a valid token");
 
         IERC721Enumerable token = IERC721Enumerable(tokenAddress);
@@ -115,6 +149,9 @@ contract Arcoiris is Settings {
         gatherings[gatheringID].ceremonies[ceremonyID].contributors.push(msg.sender);
     }
 
+    /// @notice Stop accepting contributions for the ceremony
+    /// @param gatheringID The index of gathering
+    /// @param ceremonyID The index of new ceremony
     function endCollection(
         uint256 gatheringID,
         uint256 ceremonyID
@@ -122,6 +159,11 @@ contract Arcoiris is Settings {
         gatherings[gatheringID].ceremonies[ceremonyID].isCollectionEnded = true;
     }
 
+    /// @notice Invoke redistribution algorithm and transfer shares
+    /// @param gatheringID The index of gathering
+    /// @param ceremonyID The index of new ceremony
+    /// @param siblings The list of ceremony members
+    /// @param priorities Arbitrary number associated with each ceremony member
     function redistribute(
         uint256 gatheringID,
         uint256 ceremonyID,

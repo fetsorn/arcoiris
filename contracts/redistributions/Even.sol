@@ -3,7 +3,13 @@ pragma solidity >=0.8.7 <0.9.0;
 
 import {IRedistribution, Mission} from "../interfaces/IRedistribution.sol";
 
+/// @title Redistribute wealth evenly
+/// @author Anton Davydov
 contract Even is IRedistribution {
+    /// @notice Redistribute contributions among siblings evenly, ignoring the priorities
+    /// @param siblings The list of ceremony members
+    /// @param priorities Arbitrary number associated with each ceremony member
+    /// @return missions Shares of wealth for each ceremony member
     function redistribute(
         address[] calldata siblings,
         uint256[] calldata priorities,

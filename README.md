@@ -4,7 +4,7 @@ Redistribute wealth according to arbitrary algorithm. Inspired by the [Rainbow g
 
 ## Documentation 📚
 
-Smart contract documentation is [here](https://github.com/fetsorn/arcoiris/docs/src/SUMMARY.md).
+Smart contract documentation is [here](https://github.com/fetsorn/arcoiris/blob/main/docs/src/SUMMARY.md).
 
 ## Developer Information and Tools 👩‍💻
 

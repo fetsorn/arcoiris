@@ -2,10 +2,11 @@
   "name": "arcoiris",
   "description": "Redistribute wealth",
   "license": "AGPL-3.0",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "files": [
     "src/",
-    "artifacts/"
+    "artifacts/",
+    "docs/"
   ],
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "2.2.3",

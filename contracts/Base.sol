@@ -11,7 +11,9 @@ contract Base is IERC721Receiver {
     struct Gathering {
         address focalizer;
         bool isMutable;
+        // TODO list of valid wealth types
         address collection;
+        // TODO map of relative wealth values
         IRedistribution redistribution;
         address mc;
         uint256 ceremonyCounter;

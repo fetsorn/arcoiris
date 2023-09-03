@@ -6,6 +6,38 @@ import {Base} from "./Base.sol";
 /// @title Sets settings of gatherings
 /// @author Anton Davydov
 contract Settings is Base {
+    /// @notice Emits when a gathering focalizer is changed
+    /// @param gatheringID The index of the gathering
+    /// @param focalizerOld The old organizer of the gathering
+    /// @param focalizerNew The new organizer of the gathering
+    event SetFocalizer(
+        uint256 indexed gatheringID,
+        address indexed focalizerOld
+        address indexed focalizerNew
+    );
+    
+    /// @notice Emits when a master of ceremonies is changed
+    /// @param gatheringID The index of the gathering
+    /// @param mcOld The old master of ceremonies
+    /// @param mcNew The new master of ceremonies
+    event SetMC(
+        uint256 indexed gatheringID,
+        address indexed mcOld
+        address indexed mcNew
+    );
+    
+    // TODO add and remove token addresses from list of valid wealth
+    
+    /// @notice Emits when a token valid for gathering is changed
+    /// @param gatheringID The index of new gathering
+    /// @param collectionOld The old token valid for the gathering
+    /// @param collectionNew The new token valid for the gathering
+    event SetCollection(
+        uint256 indexed gatheringID,
+        address indexed collectionOld
+        address indexed collectionNew
+    );
+    
     /// @notice Only allows functions if msg.sender is focalizer of the gathering
     modifier onlyFocalizer(uint256 gatheringID) {
         require(
@@ -26,46 +58,61 @@ contract Settings is Base {
 
     /// @notice Set address that can change gathering settings
     /// @param gatheringID The index of the gathering
-    /// @param focalizer The address of new focalizer
+    /// @param focalizerNew The address of new focalizer
     function setFocalizer(
         uint256 gatheringID,
-        address focalizer
+        address focalizerNew
     )
         external
         onlyFocalizer(gatheringID)
         onlyMutable(gatheringID)
     {
+        emit SetFocalizer(
+            gatheringID, 
+            gatherings[gatheringID].focalizer,
+            focalizerNew
+        );
+        
         gatherings[gatheringID].focalizer = focalizer;
-        // TODO: emit event
     }
 
     /// @notice Set address that can organize ceremonies
     /// @param gatheringID The index of the gathering
-    /// @param mc The address of new master of ceremonies
+    /// @param mcNew The address of new master of ceremonies
     function setMC(
         uint256 gatheringID,
-        address mc
+        address mcNew
     )
         external
         onlyFocalizer(gatheringID)
         onlyMutable(gatheringID)
     {
+        emit SetMC(
+            gatheringID, 
+            gatherings[gatheringID].mc,
+            mcNew
+        );
+        
         gatherings[gatheringID].mc = mc;
-        // TODO: emit event
     }
 
     /// @notice Set token valid for the gathering
     /// @param gatheringID The index of the gathering
-    /// @param collection The address of new token
+    /// @param collectionNew The address of new token
     function setCollection(
         uint256 gatheringID,
-        address collection
+        address collectionNew
     )
         external
         onlyFocalizer(gatheringID)
         onlyMutable(gatheringID)
     {
+        emit SetCollection(
+            gatheringID, 
+            gatherings[gatheringID].collection,
+            collectionNew
+        );
+        
         gatherings[gatheringID].collection = collection;
-        // TODO: emit event
     }
 }

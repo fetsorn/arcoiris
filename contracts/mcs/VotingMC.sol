@@ -7,6 +7,35 @@ import {Mission} from "../interfaces/IRedistribution.sol";
 /// @title Hosts redistribution ceremonies according to voting
 /// @author Anton Davydov
 contract VotingMC {
+    /// @notice Emits when a new poll is created
+    /// @param pollID The index of the new poll
+    /// @param gatheringID The index of the gathering
+    /// @param ceremonyID The index of the ceremony
+    /// @param poller The organizer of the poll
+    event CreatePoll(
+        uint256 indexed pollID,
+        uint256 indexed gatheringID,
+        uint256 indexed ceremonyID,
+        address poller
+    );
+    
+    /// @notice Emits when the collection ends and voting begins
+    /// @param pollID The index of the poll
+    event BeginVoting(uint256 indexed pollID);
+    
+    /// @notice Emits when the voting ends and wealth is redistributed
+    /// @param pollID The index of the poll
+    /// @param votes Votes on priority of each ceremony member
+    event Vote(
+        uint256 indexed pollID,
+        address indexed voter,
+        Mission[] votes
+    );
+    
+    /// @notice Emits when the voting ends and wealth is redistributed
+    /// @param pollID The index of the poll
+    event CompletePoll(uint256 indexed pollID);
+    
     /// @notice Only allows functions if msg.sender is the organizer of the poll
     modifier onlyPoller(uint256 pollID) {
         require(
@@ -78,12 +107,18 @@ contract VotingMC {
         polls[pollID].ceremonyID = ceremonyID;
 
         pollCounter++;
-        // TODO: emit event
+        
+        emit CreatePoll(
+            pollID,
+            gatheringID,
+            ceremonyID,
+            msg.sender
+        );
     }
 
     /// @notice End collection and start accepting votes
     /// @param pollID The index of the poll
-    function commencePoll(uint256 pollID) external onlyPoller(pollID) {
+    function beginVoting(uint256 pollID) external onlyPoller(pollID) {
         arcoiris.endCollection(
             polls[pollID].gatheringID,
             polls[pollID].ceremonyID
@@ -97,11 +132,13 @@ contract VotingMC {
         for (uint256 i = 0; i < contributors.length; i++) {
             polls[pollID].isEligibleVoter[contributors[i]] = true;
         }
-        // TODO: emit event
+        
+        emit BeginVoting(pollID);
     }
 
     /// @notice Place a vote for priority of each ceremony member
     /// @param pollID The index of the poll
+    /// @param votes Votes on priority of each ceremony member
     function vote(uint256 pollID, Mission[] memory votes) external {
         require(
             polls[pollID].isEligibleVoter[msg.sender],
@@ -118,7 +155,8 @@ contract VotingMC {
         }
 
         polls[pollID].voters.push(msg.sender);
-        // TODO: emit event
+        
+        emit Vote(pollID, msg.sender, votes);
     }
 
     /// @notice Redistribute wealth according to voting results
@@ -147,7 +185,7 @@ contract VotingMC {
                 polls[pollID].voters.length;
         }
         
-        // TODO: emit event
+        emit CompletePoll(pollID);
 
         arcoiris.redistribute(
             polls[pollID].gatheringID,

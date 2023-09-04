@@ -6,6 +6,9 @@ import {IRedistribution, Mission} from "../interfaces/IRedistribution.sol";
 /// @title Redistribute wealth in proportion to priorities
 /// @author Anton Davydov
 contract Proportional is IRedistribution {
+    /// @notice Version of the contract, bumped on each deployment
+    string public constant VERSION = "0.0.1";
+
     /// @notice Redistribute contributions among siblings in proportion to priorities
     /// @param siblings The list of ceremony members
     /// @param priorities Arbitrary number associated with each ceremony member

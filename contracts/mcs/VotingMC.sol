@@ -18,24 +18,20 @@ contract VotingMC {
         uint256 indexed ceremonyID,
         address poller
     );
-    
+
     /// @notice Emits when the collection ends and voting begins
     /// @param pollID The index of the poll
     event BeginVoting(uint256 indexed pollID);
-    
+
     /// @notice Emits when the voting ends and wealth is redistributed
     /// @param pollID The index of the poll
     /// @param votes Votes on priority of each ceremony member
-    event Vote(
-        uint256 indexed pollID,
-        address indexed voter,
-        Mission[] votes
-    );
-    
+    event Vote(uint256 indexed pollID, address indexed voter, Mission[] votes);
+
     /// @notice Emits when the voting ends and wealth is redistributed
     /// @param pollID The index of the poll
     event CompletePoll(uint256 indexed pollID);
-    
+
     /// @notice Only allows functions if msg.sender is the organizer of the poll
     modifier onlyPoller(uint256 pollID) {
         require(
@@ -107,13 +103,8 @@ contract VotingMC {
         polls[pollID].ceremonyID = ceremonyID;
 
         pollCounter++;
-        
-        emit CreatePoll(
-            pollID,
-            gatheringID,
-            ceremonyID,
-            msg.sender
-        );
+
+        emit CreatePoll(pollID, gatheringID, ceremonyID, msg.sender);
     }
 
     /// @notice End collection and start accepting votes
@@ -132,7 +123,7 @@ contract VotingMC {
         for (uint256 i = 0; i < contributors.length; i++) {
             polls[pollID].isEligibleVoter[contributors[i]] = true;
         }
-        
+
         emit BeginVoting(pollID);
     }
 
@@ -155,7 +146,7 @@ contract VotingMC {
         }
 
         polls[pollID].voters.push(msg.sender);
-        
+
         emit Vote(pollID, msg.sender, votes);
     }
 
@@ -184,7 +175,7 @@ contract VotingMC {
                 polls[pollID].points[siblings[i]] /
                 polls[pollID].voters.length;
         }
-        
+
         emit CompletePoll(pollID);
 
         arcoiris.redistribute(

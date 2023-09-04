@@ -128,9 +128,9 @@ contract CalibratorTest is Test {
 
         contribute(addressTony, 1);
 
-        redistribute(1,1,1);
+        redistribute(1, 1, 1);
 
-        validate(5,5,5);
+        validate(5, 5, 5);
     }
 
     function test_even_111_alice_takes_all() public {
@@ -142,9 +142,9 @@ contract CalibratorTest is Test {
 
         contribute(addressTony, 1);
 
-        redistribute(1,0,0);
+        redistribute(1, 0, 0);
 
-        validate(5,5,5);
+        validate(5, 5, 5);
     }
 
     function test_even_111_alice_and_bob() public {
@@ -156,9 +156,9 @@ contract CalibratorTest is Test {
 
         contribute(addressTony, 1);
 
-        redistribute(1,1,0);
+        redistribute(1, 1, 0);
 
-        validate(5,5,5);
+        validate(5, 5, 5);
     }
 
     function test_proportional_111_alice_takes_all() public {
@@ -170,9 +170,9 @@ contract CalibratorTest is Test {
 
         contribute(addressTony, 1);
 
-        redistribute(1,0,0);
+        redistribute(1, 0, 0);
 
-        validate(7,4,4);
+        validate(7, 4, 4);
     }
 
     function test_proportional_111_alice_and_bob() public {
@@ -184,9 +184,9 @@ contract CalibratorTest is Test {
 
         contribute(addressTony, 1);
 
-        redistribute(1,1,0);
+        redistribute(1, 1, 0);
 
-        validate(6,5,4);
+        validate(6, 5, 4);
     }
 
     function test_proportional_reverse_111_alice_takes_all() public {
@@ -200,9 +200,9 @@ contract CalibratorTest is Test {
 
         // least priority is winner
         // TODO: should 0 be winner or loser?
-        redistribute(0,1,1);
+        redistribute(0, 1, 1);
 
-        validate(4,7,6);
+        validate(4, 7, 6);
     }
 
     function test_proportional_reverse_111_alice_and_bob() public {
@@ -214,8 +214,8 @@ contract CalibratorTest is Test {
 
         contribute(addressTony, 1);
 
-        redistribute(1,1,0);
+        redistribute(1, 1, 0);
 
-        validate(6,5,4);
+        validate(6, 5, 4);
     }
 }

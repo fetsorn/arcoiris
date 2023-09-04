@@ -34,7 +34,7 @@ contract Base is IERC721Receiver {
     mapping(uint256 => Gathering) internal gatherings;
     
     /// @notice Version of the contract, bumped on each deployment
-    string public constant VERSION = "0.0.1";
+    string public constant VERSION = "0.0.2";
 
     /// @notice Get the number of created gatherings
     /// @return The number of created gatherings

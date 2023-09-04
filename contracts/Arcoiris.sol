@@ -170,6 +170,21 @@ contract Arcoiris is Settings {
         address[] memory siblings,
         uint256[] memory priorities
     ) external onlyMC(gatheringID) {
+        // guarantee that all ceremony members have made contributions
+        address[] memory contributors = gatherings[gatheringID].ceremonies[ceremonyID].contributors;
+
+        for (uint256 i = 0; i < siblings.length; i++) {
+            bool isContributor;
+
+            for (uint256 j = 0; j < contributors.length; j++) {
+                if (contributors[j] == siblings[i]) {
+                    isContributor = true;
+                }
+            }
+
+            require(isContributor, "Arcoiris: sibling is not contributor");
+        }
+
         Mission[] memory missions = gatherings[gatheringID].redistribution.redistribute(
             siblings,
             priorities,

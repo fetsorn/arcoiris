@@ -57,20 +57,12 @@ The full reports can be viewed by opening the `coverage/index.html` and `coverag
 
 ### Deploy and interact 🚀
 
-Enter your private key to the `.env` file from `.env.example` template. Double-check the deploy script and run:
+Enter your private key interactively when prompted.
 
 ```
-yarn hardhat run scripts/deploy.js
-```
+forge build
 
-You can deploy to your network of choice by modifying `hardhat.config.ts` and adding the flag `--network yourNetwork` to the invocation.
-
-```
-    yourNetwork: {
-      url: "https://example.com",
-      accounts: [PRIVATE_KEY],
-    },
-
+forge create -i --legacy --rpc-url https://polygon-mumbai.blockpi.network/v1/rpc/public contracts/Arcoiris.sol:Arcoiris```
 ```
 
 ### Verify 📄

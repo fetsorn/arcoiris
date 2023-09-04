@@ -12,4 +12,7 @@ remappings = [
     "forge-std/=node_modules/forge-std/src/",
     "hardhat/=node_modules/hardhat/",
 ]
+solc-version = "0.8.19"
+optimizer = true
+optimizer-runs = 200
 fs_permissions = [{ access = "read", path = "./node_modules"}]

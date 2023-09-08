@@ -178,6 +178,8 @@ contract CalibratorTest is Test {
         guessesCorrect[0] = bytes("banana");
         guessesCorrect[1] = bytes("knife");
 
+        quizMC.endQuiz(quizID);
+
         quizMC.revealCorrect(quizID, saltCorrect, guessesCorrect);
 
         assertEq(quizID, 0);
@@ -210,12 +212,14 @@ contract CalibratorTest is Test {
         guessesAlice[0] = bytes("banana");
         guessesAlice[1] = bytes("knife");
 
+        quizMC.endQuiz(quizID);
+
         vm.prank(addressAlice);
 
         quizMC.revealGuess(quizID, saltAlice, guessesAlice);
     }
 
-    function test_completeQuiz() public {
+    function test_redistribute() public {
         bytes32 saltCorrect = keccak256("randomnumber");
 
         bytes32 saltHashCorrect = keccak256(bytes.concat(saltCorrect));
@@ -247,6 +251,8 @@ contract CalibratorTest is Test {
         guessesCorrect[0] = bytes("banana");
         guessesCorrect[1] = bytes("knife");
 
+        quizMC.endQuiz(quizID);
+
         quizMC.revealCorrect(quizID, saltCorrect, guessesCorrect);
 
         assertEq(quizID, 0);
@@ -259,7 +265,7 @@ contract CalibratorTest is Test {
 
         quizMC.revealGuess(quizID, saltAlice, guessesAlice);
 
-        quizMC.completeQuiz(quizID);
+        quizMC.redistribute(quizID);
 
         uint256 balanceAlice = token.balanceOf(addressAlice);
 

@@ -1014,6 +1014,11 @@
   dependencies:
     "@types/node" "*"
 
+"@xyrusworx/hardhat-solidity-json@^1.0.2":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@xyrusworx/hardhat-solidity-json/-/hardhat-solidity-json-1.0.2.tgz#7360c84207f4f678c508a4732710dc874ee71557"
+  integrity sha512-cr00OHv6CMl/e9XzYu+8/78zjUgEX+g+Z1v67PASosaqmnMVS6d4+jebhgKoWt/vmXfhC06NeKOlsUKNZsGKhQ==
+
 abbrev@1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/abbrev/-/abbrev-1.1.1.tgz#f8f2c887ad10bf67f634f005b6987fed3179aac8"

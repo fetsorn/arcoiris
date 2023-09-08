@@ -68,6 +68,7 @@ contract QuizMC {
         address moderator;
         mapping(address => bool) isEligible;
         address[] players;
+        bool isEnded;
         mapping(address => bool) hasCommitted;
         mapping(address => bool) hasRevealed;
         mapping(address => bytes[]) guesses;
@@ -78,7 +79,7 @@ contract QuizMC {
     }
 
     /// @notice Version of the contract, bumped on each deployment
-    string public constant VERSION = "0.0.3";
+    string public constant VERSION = "0.0.4";
 
     /// @notice The Arcoíris contract
     Arcoiris arcoiris;
@@ -235,24 +236,15 @@ contract QuizMC {
         emit CommitCorrect(quizID, hashes);
     }
 
-    /// @notice End collection and start accepting guesses
-    /// @param quizID The index of the quiz
-    /// @param salt Random uuid salt
-    /// @param guesses Array of guesses
-    function revealCorrect(uint256 quizID, bytes32 salt, bytes[] memory guesses) external onlyModerator(quizID) {
-        quizzes[quizID].salts[address(this)] = salt;
-
-        for (uint256 i = 0; i < guesses.length; i++) {
-            quizzes[quizID].guesses[address(this)].push(guesses[i]);
-        }
-
-        emit RevealCorrect(quizID, salt, guesses);
-    }
-
     /// @notice Place a guess for priority of each ceremony member
     /// @param quizID The index of the quiz
     /// @param hashes Hashes of guesses
     function commitGuess(uint256 quizID, bytes32 saltHash, bytes32[] memory hashes) external {
+        require(
+            !quizzes[quizID].isEnded,
+            "QuizMC: quiz ended"
+        );
+
         require(
             quizzes[quizID].isEligible[msg.sender],
             "QuizMC: player is not eligible"
@@ -276,7 +268,37 @@ contract QuizMC {
         emit CommitGuess(quizID, msg.sender, hashes);
     }
 
+    /// @notice Stop taking guesses
+    /// @param quizID The index of the quiz
+    function endQuiz(uint256 quizID) external onlyModerator(quizID) {
+        quizzes[quizID].isEnded = true;
+    }
+
+    /// @notice End collection and start accepting guesses
+    /// @param quizID The index of the quiz
+    /// @param salt Random uuid salt
+    /// @param guesses Array of guesses
+    function revealCorrect(uint256 quizID, bytes32 salt, bytes[] memory guesses) external onlyModerator(quizID) {
+        require(
+            quizzes[quizID].isEnded,
+            "QuizMC: quiz not ended yet"
+        );
+
+        quizzes[quizID].salts[address(this)] = salt;
+
+        for (uint256 i = 0; i < guesses.length; i++) {
+            quizzes[quizID].guesses[address(this)].push(guesses[i]);
+        }
+
+        emit RevealCorrect(quizID, salt, guesses);
+    }
+
     function revealGuess(uint256 quizID, bytes32 salt, bytes[] memory guesses) external {
+        require(
+            quizzes[quizID].isEnded,
+            "QuizMC: quiz not ended yet"
+        );
+
         require(
             quizzes[quizID].isEligible[msg.sender],
             "QuizMC: player is not eligible"
@@ -300,9 +322,13 @@ contract QuizMC {
         emit RevealGuess(quizID, msg.sender, salt, guesses);
     }
 
+
     /// @notice Redistribute wealth according to guessing results
     /// @param quizID The index of the quiz
-    function completeQuiz(uint256 quizID) external onlyModerator(quizID) {
+    function redistribute(uint256 quizID) external onlyModerator(quizID) {
+        // TODO: graceful exit if moderator does not reveal
+        // TODO: time lock withdraw if quiz fails
+        // TODO: wait time lock and set points to 0 if player does not reveal
         require(quizzes[quizID].saltHashes[address(this)] == keccak256(bytes.concat(quizzes[quizID].salts[address(this)])));
 
         for (uint256 i = 0; i < quizzes[quizID].hashes[address(this)].length; i++) {

@@ -175,11 +175,13 @@ describe("Calibrator-js", () => {
                 ethers.toUtf8Bytes("knife")
             ];
 
+            await quizMC.endQuiz(quizID);
+
             await quizMC.revealCorrect(quizID, saltCorrect, guessesCorrect);
 
             await quizMC.connect(alice).revealGuess(quizID, saltAlice, guessesCorrect);
 
-            await quizMC.completeQuiz(quizID);
+            await quizMC.redistribute(quizID);
 
             const balanceAlice = await token.balanceOf(alice.address);
 

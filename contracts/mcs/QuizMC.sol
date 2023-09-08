@@ -72,11 +72,12 @@ contract QuizMC {
         mapping(address => bytes[]) guesses;
         mapping(address => bytes32[]) hashes;
         mapping(address => bytes32) salts;
+        mapping(address => bytes32) saltHashes;
         mapping(address => uint256) points;
     }
 
     /// @notice Version of the contract, bumped on each deployment
-    string public constant VERSION = "0.0.1";
+    string public constant VERSION = "0.0.2";
 
     /// @notice The Arcoíris contract
     Arcoiris arcoiris;
@@ -136,7 +137,7 @@ contract QuizMC {
     /// @notice End collection, commit to answers and start accepting guesses
     /// @param quizID The index of the quiz
     /// @param hashes Array of guess hashes
-    function commitCorrect(uint256 quizID, bytes32[] memory hashes) external onlyModerator(quizID) {
+    function commitCorrect(uint256 quizID, bytes32 saltHash, bytes32[] memory hashes) external onlyModerator(quizID) {
         arcoiris.endCollection(
             quizzes[quizID].gatheringID,
             quizzes[quizID].ceremonyID
@@ -151,9 +152,12 @@ contract QuizMC {
             quizzes[quizID].isEligiblePlayer[contributors[i]] = true;
         }
 
+        quizzes[quizID].saltHashCorrect = saltHash;
+
         for (uint256 i = 0; i < hashes.length; i++) {
             quizzes[quizID].hashesCorrect.push(hashes[i]);
         }
+
 
         emit CommitCorrect(quizID, hashes);
     }
@@ -175,7 +179,7 @@ contract QuizMC {
     /// @notice Place a guess for priority of each ceremony member
     /// @param quizID The index of the quiz
     /// @param hashes Hashes of guesses
-    function commitGuess(uint256 quizID, bytes32[] memory hashes) external {
+    function commitGuess(uint256 quizID, bytes32 saltHash, bytes32[] memory hashes) external {
         require(
             quizzes[quizID].isEligiblePlayer[msg.sender],
             "Quiz: player is not eligible"
@@ -185,6 +189,8 @@ contract QuizMC {
             !quizzes[quizID].hasCommitted[msg.sender],
             "Quiz: player has already guessed"
         );
+
+        quizzes[quizID].saltHashes[msg.sender] = saltHash;
 
         for (uint256 i = 0; i < hashes.length; i++) {
             quizzes[quizID].hashes[msg.sender].push(hashes[i]);
@@ -224,6 +230,8 @@ contract QuizMC {
     /// @notice Redistribute wealth according to guessing results
     /// @param quizID The index of the quiz
     function completeQuiz(uint256 quizID) external onlyModerator(quizID) {
+        require(quizzes[quizID].saltHashCorrect == keccak256(bytes.concat(quizzes[quizID].saltCorrect)));
+
         for (uint256 i = 0; i < quizzes[quizID].hashesCorrect.length; i++) {
             bytes memory guess = bytes.concat(
                 quizzes[quizID].guessesCorrect[i],
@@ -236,8 +244,11 @@ contract QuizMC {
         }
 
         for (uint256 i = 0; i < quizzes[quizID].players.length; i++) {
+            address player = quizzes[quizID].players[i];
+
+            require(quizzes[quizID].saltHashes[player] == keccak256(bytes.concat(quizzes[quizID].salts[player])));
+
             for (uint256 j = 0; j < quizzes[quizID].hashesCorrect.length; j++) {
-                address player = quizzes[quizID].players[i];
 
                 bytes memory guess = bytes.concat(
                     quizzes[quizID].guesses[player][j],

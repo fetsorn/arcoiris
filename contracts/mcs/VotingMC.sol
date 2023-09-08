@@ -51,6 +51,7 @@ contract VotingMC {
         mapping(address => Mission[]) votes;
         mapping(address => uint256) points;
     }
+
     /// @notice Version of the contract, bumped on each deployment
     string public constant VERSION = "0.0.1";
 

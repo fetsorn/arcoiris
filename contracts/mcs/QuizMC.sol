@@ -41,7 +41,12 @@ contract QuizMC {
     /// @param player The address of the player
     /// @param salt Random uuid salt
     /// @param guesses Guesses
-    event RevealGuess(uint256 indexed quizID, address indexed player, bytes32 indexed salt, bytes[] guesses);
+    event RevealGuess(
+        uint256 indexed quizID,
+        address indexed player,
+        bytes32 indexed salt,
+        bytes[] guesses
+    );
 
     /// @notice Emits when the guessing ends and wealth is redistributed
     /// @param quizID The index of the quiz
@@ -61,10 +66,6 @@ contract QuizMC {
         uint256 gatheringID;
         uint256 ceremonyID;
         address moderator;
-        bytes32[] hashesCorrect;
-        bytes[] guessesCorrect;
-        bytes32 saltCorrect;
-        bytes32 saltHashCorrect;
         mapping(address => bool) isEligiblePlayer;
         address[] players;
         mapping(address => bool) hasCommitted;
@@ -77,7 +78,7 @@ contract QuizMC {
     }
 
     /// @notice Version of the contract, bumped on each deployment
-    string public constant VERSION = "0.0.2";
+    string public constant VERSION = "0.0.3";
 
     /// @notice The Arcoíris contract
     Arcoiris arcoiris;
@@ -108,6 +109,62 @@ contract QuizMC {
         uint256 quizID
     ) external view returns (uint256 ceremonyID) {
         return quizzes[quizID].ceremonyID;
+    }
+
+    /// @notice Get hash of salt for player answers
+    /// @param quizID The index of a quiz
+    /// @param player The address of the player
+    /// @return saltHash Hash of salt for player answers
+    function getSaltHash(
+        uint256 quizID,
+        address player
+    ) external view returns (bytes32 saltHash) {
+        return quizzes[quizID].saltHashes[player];
+    }
+
+    /// @notice Get salt for player answers
+    /// @param quizID The index of a quiz
+    /// @param player The address of the player
+    /// @return salt Salt for player answers
+    function getSalt(
+        uint256 quizID,
+        address player
+    ) external view returns (bytes32 salt) {
+        return quizzes[quizID].salts[player];
+    }
+
+    /// @notice Get player answers
+    /// @param quizID The index of a quiz
+    /// @param player The address of the player
+    /// @return guesses Player answers
+    function getGuesses(
+        uint256 quizID,
+        address player
+    ) external view returns (bytes[] memory guesses) {
+        return quizzes[quizID].guesses[player];
+    }
+
+    /// @notice Get hashes of player answers
+    /// @param quizID The index of a quiz
+    /// @param player The address of the player
+    /// @return hashes Player answers
+    function getHashes(
+        uint256 quizID,
+        address player
+    ) external view returns (bytes32[] memory hashes) {
+        return quizzes[quizID].hashes[player];
+    }
+
+
+    /// @notice Get points of player
+    /// @param quizID The index of a quiz
+    /// @param player The address of the player
+    /// @return points Player points
+    function getPoints(
+        uint256 quizID,
+        address player
+    ) external view returns (uint256 points) {
+        return quizzes[quizID].points[player];
     }
 
     /// @notice Create a quiz and a redistribution ceremony
@@ -152,10 +209,10 @@ contract QuizMC {
             quizzes[quizID].isEligiblePlayer[contributors[i]] = true;
         }
 
-        quizzes[quizID].saltHashCorrect = saltHash;
+        quizzes[quizID].saltHashes[address(this)] = saltHash;
 
         for (uint256 i = 0; i < hashes.length; i++) {
-            quizzes[quizID].hashesCorrect.push(hashes[i]);
+            quizzes[quizID].hashes[address(this)].push(hashes[i]);
         }
 
 
@@ -167,10 +224,10 @@ contract QuizMC {
     /// @param salt Random uuid salt
     /// @param guesses Array of guesses
     function revealCorrect(uint256 quizID, bytes32 salt, bytes[] memory guesses) external onlyModerator(quizID) {
-        quizzes[quizID].saltCorrect = salt;
+        quizzes[quizID].salts[address(this)] = salt;
 
         for (uint256 i = 0; i < guesses.length; i++) {
-            quizzes[quizID].guessesCorrect.push(guesses[i]);
+            quizzes[quizID].guesses[address(this)].push(guesses[i]);
         }
 
         emit RevealCorrect(quizID, salt, guesses);
@@ -230,17 +287,17 @@ contract QuizMC {
     /// @notice Redistribute wealth according to guessing results
     /// @param quizID The index of the quiz
     function completeQuiz(uint256 quizID) external onlyModerator(quizID) {
-        require(quizzes[quizID].saltHashCorrect == keccak256(bytes.concat(quizzes[quizID].saltCorrect)));
+        require(quizzes[quizID].saltHashes[address(this)] == keccak256(bytes.concat(quizzes[quizID].salts[address(this)])));
 
-        for (uint256 i = 0; i < quizzes[quizID].hashesCorrect.length; i++) {
+        for (uint256 i = 0; i < quizzes[quizID].hashes[address(this)].length; i++) {
             bytes memory guess = bytes.concat(
-                quizzes[quizID].guessesCorrect[i],
-                quizzes[quizID].saltCorrect
+                quizzes[quizID].guesses[address(this)][i],
+                quizzes[quizID].salts[address(this)]
             );
 
             bytes32 hash = keccak256(guess);
 
-            require(hash == quizzes[quizID].hashesCorrect[i], "QuizMC: correct invalid");
+            require(hash == quizzes[quizID].hashes[address(this)][i], "QuizMC: correct answer invalid");
         }
 
         for (uint256 i = 0; i < quizzes[quizID].players.length; i++) {
@@ -248,7 +305,7 @@ contract QuizMC {
 
             require(quizzes[quizID].saltHashes[player] == keccak256(bytes.concat(quizzes[quizID].salts[player])));
 
-            for (uint256 j = 0; j < quizzes[quizID].hashesCorrect.length; j++) {
+            for (uint256 j = 0; j < quizzes[quizID].hashes[address(this)].length; j++) {
 
                 bytes memory guess = bytes.concat(
                     quizzes[quizID].guesses[player][j],
@@ -260,7 +317,7 @@ contract QuizMC {
                 require(hash == quizzes[quizID].hashes[player][j], "QuizMC: guess invalid");
 
                 if (keccak256(quizzes[quizID].guesses[player][j]) ==
-                    keccak256(quizzes[quizID].guessesCorrect[j])) {
+                    keccak256(quizzes[quizID].guesses[address(this)][j])) {
                     quizzes[quizID].points[player]++;
                 }
             }

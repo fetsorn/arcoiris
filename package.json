@@ -2,7 +2,7 @@
   "name": "arcoiris",
   "description": "Redistribute wealth",
   "license": "AGPL-3.0",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "files": [
     "src/",
     "artifacts/",

@@ -13,7 +13,7 @@ contract ArcoirisTestHarness is Arcoiris {}
 contract CalibratorTest is Test {
     ArcoirisTestHarness arcoiris;
     ERC721PresetMinterPauserAutoId token;
-    QuizMC quiz;
+    QuizMC quizMC;
     address addressAlice = address(1);
     address addressBob = address(2);
     uint256 tokenAlice;
@@ -25,7 +25,7 @@ contract CalibratorTest is Test {
     function setUp() public {
         arcoiris = new ArcoirisTestHarness();
 
-        quiz = new QuizMC(address(arcoiris));
+        quizMC = new QuizMC(address(arcoiris));
 
         token = new ERC721PresetMinterPauserAutoId(
             "Base",
@@ -38,13 +38,13 @@ contract CalibratorTest is Test {
         gatheringID = arcoiris.createGathering(
             address(token),
             address(redistribution),
-            address(quiz),
+            address(quizMC),
             false
         );
 
-        quizID = quiz.createQuiz(gatheringID);
+        quizID = quizMC.createQuiz(gatheringID);
 
-        ceremonyID = quiz.getCeremonyID(quizID);
+        ceremonyID = quizMC.getCeremonyID(quizID);
 
         // mint token to Alice
 
@@ -101,7 +101,12 @@ contract CalibratorTest is Test {
 
         vm.prank(addressBob);
 
-        arcoiris.contribute(gatheringID, ceremonyID, address(token), tokenBob);
+        arcoiris.contribute(
+             gatheringID,
+             ceremonyID,
+             address(token),
+             tokenBob
+        );
 
         balanceBob = token.balanceOf(addressBob);
 
@@ -117,7 +122,7 @@ contract CalibratorTest is Test {
         hashes[0] = keccak256(bytes.concat("banana", salt));
         hashes[1] = keccak256(bytes.concat("knife", salt));
 
-        quiz.commitCorrect(quizID, saltHash, hashes);
+        quizMC.commitCorrect(quizID, saltHash, hashes);
 
         assertEq(quizID, 0);
     }
@@ -131,7 +136,7 @@ contract CalibratorTest is Test {
         hashesCorrect[0] = keccak256(bytes.concat("banana", saltCorrect));
         hashesCorrect[1] = keccak256(bytes.concat("knife", saltCorrect));
 
-        quiz.commitCorrect(quizID, saltHashCorrect, hashesCorrect);
+        quizMC.commitCorrect(quizID, saltHashCorrect, hashesCorrect);
 
         bytes32 saltAlice = keccak256("alicenumber");
 
@@ -143,7 +148,7 @@ contract CalibratorTest is Test {
 
         vm.prank(addressAlice);
 
-        quiz.commitGuess(quizID, saltHashAlice, hashesAlice);
+        quizMC.commitGuess(quizID, saltHashAlice, hashesAlice);
     }
 
     function test_revealCorrect() public {
@@ -155,7 +160,7 @@ contract CalibratorTest is Test {
         hashesCorrect[0] = keccak256(bytes.concat("banana", saltCorrect));
         hashesCorrect[1] = keccak256(bytes.concat("knife", saltCorrect));
 
-        quiz.commitCorrect(quizID, saltHashCorrect, hashesCorrect);
+        quizMC.commitCorrect(quizID, saltHashCorrect, hashesCorrect);
 
         bytes32 saltAlice = keccak256("alicenumber");
 
@@ -167,13 +172,13 @@ contract CalibratorTest is Test {
 
         vm.prank(addressAlice);
 
-        quiz.commitGuess(quizID, saltHashAlice, hashesAlice);
+        quizMC.commitGuess(quizID, saltHashAlice, hashesAlice);
 
         bytes[] memory guessesCorrect = new bytes[](2);
         guessesCorrect[0] = bytes("banana");
         guessesCorrect[1] = bytes("knife");
 
-        quiz.revealCorrect(quizID, saltCorrect, guessesCorrect);
+        quizMC.revealCorrect(quizID, saltCorrect, guessesCorrect);
 
         assertEq(quizID, 0);
     }
@@ -187,7 +192,7 @@ contract CalibratorTest is Test {
         hashesCorrect[0] = keccak256(bytes.concat("banana", saltCorrect));
         hashesCorrect[1] = keccak256(bytes.concat("knife", saltCorrect));
 
-        quiz.commitCorrect(quizID, saltHashCorrect, hashesCorrect);
+        quizMC.commitCorrect(quizID, saltHashCorrect, hashesCorrect);
 
         bytes32 saltAlice = keccak256("alicenumber");
 
@@ -199,7 +204,7 @@ contract CalibratorTest is Test {
 
         vm.prank(addressAlice);
 
-        quiz.commitGuess(quizID, saltHashAlice, hashesAlice);
+        quizMC.commitGuess(quizID, saltHashAlice, hashesAlice);
 
         bytes[] memory guessesAlice = new bytes[](2);
         guessesAlice[0] = bytes("banana");
@@ -207,7 +212,7 @@ contract CalibratorTest is Test {
 
         vm.prank(addressAlice);
 
-        quiz.revealGuess(quizID, saltAlice, guessesAlice);
+        quizMC.revealGuess(quizID, saltAlice, guessesAlice);
     }
 
     function test_completeQuiz() public {
@@ -219,11 +224,16 @@ contract CalibratorTest is Test {
         hashesCorrect[0] = keccak256(bytes.concat(bytes("banana"), saltCorrect));
         hashesCorrect[1] = keccak256(bytes.concat(bytes("knife"), saltCorrect));
 
-        quiz.commitCorrect(quizID, saltHashCorrect, hashesCorrect);
+        console.logBytes(bytes("banana"));
+
+        quizMC.commitCorrect(quizID, saltHashCorrect, hashesCorrect);
 
         bytes32 saltAlice = keccak256("alicenumber");
 
         bytes32 saltHashAlice = keccak256(bytes.concat(saltAlice));
+
+        console.logBytes32(hashesCorrect[0]);
+        console.logBytes32(hashesCorrect[1]);
 
         bytes32[] memory hashesAlice = new bytes32[](2);
         hashesAlice[0] = keccak256(bytes.concat(bytes("banana"), saltAlice));
@@ -231,13 +241,13 @@ contract CalibratorTest is Test {
 
         vm.prank(addressAlice);
 
-        quiz.commitGuess(quizID, saltHashAlice, hashesAlice);
+        quizMC.commitGuess(quizID, saltHashAlice, hashesAlice);
 
         bytes[] memory guessesCorrect = new bytes[](2);
         guessesCorrect[0] = bytes("banana");
         guessesCorrect[1] = bytes("knife");
 
-        quiz.revealCorrect(quizID, saltCorrect, guessesCorrect);
+        quizMC.revealCorrect(quizID, saltCorrect, guessesCorrect);
 
         assertEq(quizID, 0);
 
@@ -247,9 +257,9 @@ contract CalibratorTest is Test {
 
         vm.prank(addressAlice);
 
-        quiz.revealGuess(quizID, saltAlice, guessesAlice);
+        quizMC.revealGuess(quizID, saltAlice, guessesAlice);
 
-        quiz.completeQuiz(quizID);
+        quizMC.completeQuiz(quizID);
 
         uint256 balanceAlice = token.balanceOf(addressAlice);
 

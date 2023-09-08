@@ -66,7 +66,7 @@ contract QuizMC {
         uint256 gatheringID;
         uint256 ceremonyID;
         address moderator;
-        mapping(address => bool) isEligiblePlayer;
+        mapping(address => bool) isEligible;
         address[] players;
         mapping(address => bool) hasCommitted;
         mapping(address => bool) hasRevealed;
@@ -222,7 +222,7 @@ contract QuizMC {
         );
 
         for (uint256 i = 0; i < contributors.length; i++) {
-            quizzes[quizID].isEligiblePlayer[contributors[i]] = true;
+            quizzes[quizID].isEligible[contributors[i]] = true;
         }
 
         quizzes[quizID].saltHashes[address(this)] = saltHash;
@@ -254,7 +254,7 @@ contract QuizMC {
     /// @param hashes Hashes of guesses
     function commitGuess(uint256 quizID, bytes32 saltHash, bytes32[] memory hashes) external {
         require(
-            quizzes[quizID].isEligiblePlayer[msg.sender],
+            quizzes[quizID].isEligible[msg.sender],
             "QuizMC: player is not eligible"
         );
 
@@ -278,7 +278,7 @@ contract QuizMC {
 
     function revealGuess(uint256 quizID, bytes32 salt, bytes[] memory guesses) external {
         require(
-            quizzes[quizID].isEligiblePlayer[msg.sender],
+            quizzes[quizID].isEligible[msg.sender],
             "QuizMC: player is not eligible"
         );
 

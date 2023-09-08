@@ -5,8 +5,6 @@ libs = [
     "node_modules",
 ]
 remappings = [
-    "@ethereum-waffle/=node_modules/@ethereum-waffle/",
-    "@gton/=node_modules/@gton/",
     "@openzeppelin/=node_modules/@openzeppelin/",
     "ds-test/=node_modules/ds-test/src/",
     "forge-std/=node_modules/forge-std/src/",

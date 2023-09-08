@@ -1,17 +1,18 @@
-import "@nomiclabs/hardhat-ethers";
-import "@nomiclabs/hardhat-waffle";
-import "@typechain/hardhat";
-import "@xyrusworx/hardhat-solidity-json";
-import "hardhat-abi-exporter";
-import 'solidity-coverage';
+import { HardhatUserConfig } from "hardhat/config";
+import "@nomicfoundation/hardhat-toolbox";
+// import "@nomiclabs/hardhat-ethers";
+// import "@typechain/hardhat";
+// import "@xyrusworx/hardhat-solidity-json";
+// import "hardhat-abi-exporter";
+// import 'solidity-coverage';
 
-import { config } from "dotenv";
+// import { config } from "dotenv";
 
-config();
+// config();
 
-const {
-  PRIVATE_KEY,
-} = process.env;
+// const {
+//   PRIVATE_KEY,
+// } = process.env;
 
 /**
  * @type import('hardhat/config').HardhatUserConfig
@@ -21,18 +22,18 @@ export default {
     localhost: {
       url: "http://127.0.0.1:8545",
     },
-    gton: {
-      url: "https://rpc.gton.network",
-      accounts: [PRIVATE_KEY],
-    },
-    gtonTestnet: {
-      url: "https://testnet.gton.network",
-      accounts: [PRIVATE_KEY],
-    },
-    mumbai: {
-      url: "https://matic-mumbai.chainstacklabs.com",
-      accounts: [PRIVATE_KEY],
-    },
+    // gton: {
+    //   url: "https://rpc.gton.network",
+    //   accounts: [PRIVATE_KEY],
+    // },
+    // gtonTestnet: {
+    //   url: "https://testnet.gton.network",
+    //   accounts: [PRIVATE_KEY],
+    // },
+    // mumbai: {
+    //   url: "https://matic-mumbai.chainstacklabs.com",
+    //   accounts: [PRIVATE_KEY],
+    // },
   },
   solidity: {
     compilers: [

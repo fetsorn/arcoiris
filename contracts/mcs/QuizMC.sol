@@ -167,13 +167,24 @@ contract QuizMC {
         return quizzes[quizID].points[player];
     }
 
+    /// @notice Get true if player contributed ticket
+    /// @param quizID The index of a quiz
+    /// @param player The address of the player
+    /// @return isEligible True if player contributed ticket
+    function getIsEligible(
+        uint256 quizID,
+        address player
+    ) external view returns (bool isEligible) {
+        return quizzes[quizID].isEligible[player];
+    }
+
     /// @notice Create a quiz and a redistribution ceremony
     /// @param gatheringID The index of the gathering
     /// @return quizID The index of the new quiz
     function createQuiz(uint256 gatheringID) external returns (uint256 quizID) {
         require(
             arcoiris.getMC(gatheringID) == address(this),
-            "Quiz: is not MC"
+            "QuizMC: is not MC"
         );
 
         quizID = quizCounter;
@@ -198,6 +209,11 @@ contract QuizMC {
         arcoiris.endCollection(
             quizzes[quizID].gatheringID,
             quizzes[quizID].ceremonyID
+        );
+
+        require(
+            !quizzes[quizID].hasCommitted[address(this)],
+            "QuizMC: moderator has already committed"
         );
 
         address[] memory contributors = arcoiris.getContributors(
@@ -239,12 +255,12 @@ contract QuizMC {
     function commitGuess(uint256 quizID, bytes32 saltHash, bytes32[] memory hashes) external {
         require(
             quizzes[quizID].isEligiblePlayer[msg.sender],
-            "Quiz: player is not eligible"
+            "QuizMC: player is not eligible"
         );
 
         require(
             !quizzes[quizID].hasCommitted[msg.sender],
-            "Quiz: player has already guessed"
+            "QuizMC: player has already guessed"
         );
 
         quizzes[quizID].saltHashes[msg.sender] = saltHash;
@@ -263,12 +279,12 @@ contract QuizMC {
     function revealGuess(uint256 quizID, bytes32 salt, bytes[] memory guesses) external {
         require(
             quizzes[quizID].isEligiblePlayer[msg.sender],
-            "Quiz: player is not eligible"
+            "QuizMC: player is not eligible"
         );
 
         require(
             !quizzes[quizID].hasRevealed[msg.sender],
-            "Quiz: player has already revealed"
+            "QuizMC: player has already revealed"
         );
 
         quizzes[quizID].salts[msg.sender] = salt;
